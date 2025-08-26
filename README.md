@@ -60,7 +60,7 @@ Tailwind CSS is configured via JavaScript (no build step needed, as it's inline)
 
 
 Clone the Repository:
-textgit clone https://gitlab.com/your-username/scorpion-solitaire.git
+textgit clone https://gitlab.com/fengyouzhan-group/scorpion-solitaire.git
 
 Run the Game:
 
