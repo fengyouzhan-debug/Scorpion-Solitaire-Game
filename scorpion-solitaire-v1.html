@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scorpion Solitaire | Classic Single Player Card Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="style.js"></script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .card-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .pile-transition {
+        transition: all 0.3s ease;
+      }
+      .btn-pulse { 
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+        }
+      }
+    }
+  </style>
+</head>
+<body class="bg-green-800 min-h-screen font-inter text-gray-200">
+  <div class="container mx-auto px-4 py-6 max-w-7xl">
+    <div class="bg-green-800 p-6 flex flex-col gap-6">
+      <header class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold">Scorpion Solitaire</h1>
+        </div>
+        
+        <div class="flex flex-wrap gap-3">
+          <button id="new-game" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all duration-300 transform hover:scale-105">
+            New Game
+          </button>
+          <button id="undo" class="bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-lg shadow-md flex items-center transition-all duration-300 transform hover:scale-105">
+            Undo
+          </button>
+        </div>
+      </header>
+      
+      <div class="flex flex-wrap justify-center items-center gap-6 py-4">
+        <div class="flex items-center">
+          <div>
+            <p class="text-sm text-gray-400">Time</p>
+            <p id="timer" class="font-bold text-xl">00:00</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div>
+            <p class="text-sm text-gray-400">Score</p>
+            <p id="score" class="font-bold text-xl">0</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div>
+            <p class="text-sm text-gray-400">Moves</p>
+            <p id="moves" class="font-bold text-xl">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 游戏主区域 -->
+      <div class="game-area flex flex-col gap-6">
+        <!-- 上方：Tableau Piles -->
+        <div class="w-full">
+          <p class="text-sm font-medium text-gray-300 mb-4">Tableau Piles</p>
+          <div id="tableau-piles" class="grid grid-cols-7 gap-2"></div>
+        </div>
+        <!-- 下方：Stock Pile 和 Foundation Piles 横向排列 -->
+        <div class="flex flex-row items-start justify-center gap-12 w-full mt-24">
+          <!-- Stock Pile -->
+          <div>
+            <p class="text-sm font-medium text-gray-300 mb-2">Stock Pile</p>
+            <div id="stock-pile" class="relative h-28 w-20 mx-auto cursor-pointer card-shadow rounded-lg bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center text-white text-2xl">
+              <span id="stock-count" class="font-bold">3</span>
+            </div>
+          </div>
+          <!-- Foundation Piles -->
+          <div>
+            <p class="text-sm font-medium text-gray-300 mb-2">Foundation Piles</p>
+            <div id="foundation-piles" class="grid grid-cols-4 gap-2">
+              <div class="foundation-pile h-28 w-20 mx-auto rounded-lg bg-gray-50 flex items-center justify-center">
+                <span class="text-gray-400">K-A</span>
+              </div>
+              <div class="foundation-pile h-28 w-20 mx-auto rounded-lg bg-gray-50 flex items-center justify-center">
+                <span class="text-gray-400">K-A</span>
+              </div>
+              <div class="foundation-pile h-28 w-20 mx-auto rounded-lg bg-gray-50 flex items-center justify-center">
+                <span class="text-gray-400">K-A</span>
+              </div>
+              <div class="foundation-pile h-28 w-20 mx-auto rounded-lg bg-gray-50 flex items-center justify-center">
+                <span class="text-gray-400">K-A</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="win-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center">
+      <div class="mb-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+          <span class="text-amber-500 text-3xl">★</span>
+        </div>
+        <h2 class="text-2xl font-bold text-secondary mb-2">Congratulations!</h2>
+        <p class="text-gray-600 mb-4">You won the game!</p>
+        
+        <div class="grid grid-cols-3 gap-2 mb-6">
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Time</p>
+            <p id="final-time" class="font-bold text-lg">00:00</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Moves</p>
+            <p id="final-moves" class="font-bold text-lg">0</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Score</p>
+            <p id="final-score" class="font-bold text-lg text-amber-500">0</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-3 justify-center">
+        <button id="play-again" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300 flex-1">
+          Play Again
+        </button>
+        <button id="close-win" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg shadow-md transition-all duration-300 flex-1">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="game.js"></script>
+</body>
+</html>    
